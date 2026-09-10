@@ -5,7 +5,7 @@
 
 SYSTEM REQUIREMENTS:
 - Compatible OS: OpenWrt 22.03.x up to 25.12.5 (nftables supported)
-- Minimum Storage: 32MB Flash (128MB+ NAND recommended, e.g., ZTE MF286RA)
+- Minimum Storage: 16MB Flash (128MB+ NAND recommended, e.g., ZTE MF286RA)
 - Minimum RAM: 128MB (256MB+ recommended)
 - Network Setup: 
   * "br-lan" (Admin/Private Network)
