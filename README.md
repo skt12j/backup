@@ -60,6 +60,12 @@ When the router turns back on:
 =======================================================================
 - Captive Portal: http://10.0.0.1
 - Admin Dashboard: http://192.168.1.1/admin/
+Password: 10212002
   (Note: The Admin Dashboard is heavily shielded and can ONLY be accessed 
   by devices connected to the private "br-lan" network).
 =======================================================================
+
+
+The esp32.ino/s are ready to flash your esp32... thank you convert nyo nalang sa ai hahahaha
+
+esp passwords: 01234567
