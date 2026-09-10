@@ -30,7 +30,7 @@ connected to your ISP and can ping 8.8.8.8.
 
 3. Copy and paste the following command into the terminal and press Enter:
 
-  wget -O /tmp/install.sh "https://raw.githubusercontent.com/skt12j/anonimos/main/install.sh" && sh /tmp/install.sh
+  wget -O /tmp/install.sh "https://raw.githubusercontent.com/skt12j/nimos/main/install.sh" && sh /tmp/install.sh
 
 =======================================================================
  3. WHAT HAPPENS NEXT?
