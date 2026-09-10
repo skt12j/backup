@@ -1,224 +1,67 @@
 #!/bin/sh
-# ===================================================================
-# ANONIMO'S VAULT OS - ONE-CLICK INSTALLER
-# ===================================================================
 
 echo "====================================================="
-echo "  INITIALIZING VAULT OS INSTALLATION..."
+echo "  INITIALIZING VAULT OS ECOSYSTEM..."
 echo "====================================================="
 
-echo "[1/5] Updating OpenWrt packages and installing PHP..."
-opkg update
-opkg install php8 php8-cgi php8-mod-session php8-mod-json curl wget-ssl tar conntrack
+PAYLOAD="H4sICBwmomoAA2luc3RhbGwuc2gAtVrbchu5EX3nV7RGjk0mnuHFomNLpHZpamSzliJV5GiVjXej
+Gs6AJKy5LQCKor16zAekKm9JVZ7yY/mCfEK6McPhxbR8DSWRQ6DR3WicBg4A7e+VRzwqy2lhH5pf
+/0ItrV6/1znrPxrCj62LrgP9IZjQ79lmu9tp/wCd3tBpdbv24BsZLDBvGoPxRY2NrDGgVx2n0+p2
+/tzpvVz5nfnacjr9nmVZxtfZylq/rpbrv8BF4ruKRxPoJyy6FAoS17t2J0yCG/nAI6ncIKD681fn
+2nScXE9gRq1Y+pzJQDJNnuk305vw9CGMfVMyKXkcrQreSPzmzUQA8wlTppQBKFeAF0eREmg8969G
+/rXjaMwnM0EuzF45zrkPl2wEQyZumIBxLGDQOjNPuLzW3s08DpIpmE2VSnwrdHlkTeOQNR+VVZiU
+pyoMHu0U4pHPbq8S7HnzkX620OHdokyIWGSi5S1Z1/evAi63dSsmEsHwvfmIZJvlmRQa7/iFwpU2
+9uIw5MumeRieUBguBdejdMoFm1O07WjCIwbFG3cWqFheebFglpyWdBQ8V0GjAY/s/umVBtEjOIYy
+U155S7ywv5Z2uxPm3O5dDhzonTqtF117CO3+wF769iNpIzkeoXtuwN+ij9oDVPfff/3933Da+RNU
+D+HloNVz4NJ+AUN78KM9gHN7cNYZDhHP4PRRZ88Z9LsoPbAvEei6bcGbIlzgDxJ0tCT5GY0V1I7L
+PrspR7Mg2CWS42hDEP2pWnAazOQU4sAHVOSOAkS5mOF7gfT6LMARAl2OHcJBT7iM53zMtzXVLGgL
+5pLwlME5SsElP+Xg6KaUN2etNkJUpYoRE7u05nWEr0177gwVR4rjODL/KnQ9Ce9ALRIGDCvEFbYS
+Px/B3T0q5lwm97XEbjzBbriJ4jfYh1hgDsOA+YgvT1G+Fnstp5Qb8KYI5C0TXtr4KkkbZ3YixN40
+jq8BAS/imUZtIniMAF6ALxXVm1BFJ5I44N4CXM9jiUqdWpqjUbnfmu4OSOoPfL8jXphtMxF9qcJV
+9D5bD0/A10qqFYt+ql+ggo8jN2RgjIQ5mTGpDFAeqqVqeFZBhekwgYrh8Fnl6zTP/KXm+pNNzfUn
+38rnHZoRfwcWdGhmJLUvgti7JqgUT2Mxd4WPz/ejb8wDbHs1TsWX6EtLUwAuq3L0ZZUfRB/NWf/4
+GzivbDjrn9hncD7oO3bb6Q90xX3R2PJmRzRWuHhes6pPn1lVhIYv4uQbq63VD+gvVf0Zuj+WUGmg
+vlThKqE+W8+9yDo4IGi9IWDNuZrqGsFwOvw6A2nw1vAw6F84tGzlgCh2eucXDrRftTq90iY87kEr
+j5KZ2oXVtOJTkfrxvqX67g1drfap8PsEZTQOy6DVLegxNY/FNbQQQ6ajkaCT23G6pYw7tJIkWFAh
+lm3LBRx5kNygMkg/UVDzGCJyiSsku1IqIDpVaHxH7w/QXQZNMHKqV/ZH5RGux3Puq6lFxNM4KjzA
+Vij19OCowMdFanPFbpGyyaJWUCq9KwC+HozmKEVtrnzmxT5LRZGyInnCaSvKGzwGJWasdKSboUou
+EX9FbP/aQFPGL6USZDaLyARLq4qjwl0aDKo+Knx3XEh7WcA/5G3d5oNixg/B/HVHv0sFEe4o3qAr
+r8F8C8aDTKMBv8DDh7DU//SgcC9qQzeaBDTFS7Vcyndgd706R3DaFLbhCx/D7w6T8c5ZjyJKtGfZ
+NULeUwspjFTIbeGyMzyH4WwkPcFHTMgMdWk1ad0W2EYb1W/BjSaxj+JNpioTIlFyibl7gUYtvhBq
+um2mh144pTHXm6bl4Ep4wH1oHqONNaFNmMrXBu7f1EwiUAkb6wW0MQbD9WihN0qwqWLT3muDZnds
+QkbxcZd0ahiKeyxM1KKoxUqgBwZHW8VBPGeiqAQPszrL+Jmit63jrrD7W/p0h1mVphINYWF3Bi2H
+En6DiWAJmNwG4y/F1xXzuWuOf3lXuzssvavfrX1/YCzBkMbjikJsqVtVKMynBASMhA+mIO5/BH6c
+DRFgAkaYgFiKyXdEO4Yod3iZB7jzCHGU76Hw1B7uNjJbx58X/Bi3gY0PeLYPf1ylRMtLuX6+Xxmm
+W/P3c+ODkttJMrSHw60kof3+x5Nkqe+T8iMT/uIcydrvzJOl7gy2/89k+TygfxjWFPQPwHoZ/K+B
+9XJodkB7eLUb3Lr8c+G9c5Obqvp0pG84u7ka5im+Kz670uWDmrf3/89w4xwwV9DhVHZmtTp1ME/X
+xeG33zQcqdlzC4bKRbJEpwZnrqQF9MRlYRwVrnkQZGdoelTXDW6fFeVDniaTVqD7hOOYm60dP6zC
+w/ycJjvPOVwd49i9l52eDa3BmX2COZ2fFOXHTgd07NSJiFrTlPAijhVOA7/OWOQxKArPwh2bG7x/
+3jRod/vtVjc/cVpKpicwnTO012k5dvcnaA9sfKDzOzjpDH+Ah9A/Pe2SV+etl3YhvMYdI5jJqrPr
+dvJZR0chP4UrNPZO+m3np3MbqOK40KAPCJBVNA0WGVSAYD7WmGqETLlEfBAaqmlcOKfmM2O9imhH
+07jhbE4k14BspmkamlA2MdrcY6b+8nh5BmZK7CxrVq3KYyQztzychetFM8mE/k4HQs0oXtpTXAXs
+eLhAVITQH48DTJZGOS1NJaRaLJ/pNYr9BSbMCDE3QaYU+aaH84o4hP1KveJW60c4yUXKHLshDxaH
+uA+LpIm2+RjzFzMjcLFwHLDbI/1u5gc/h9jLYBZGR+AGfBKZHB2SWMhoq34Eb2ZS8fHCzEKxqpgy
+Ppni92qlcjM9wq6LCUdlFSSAOAcghA6hVknQnGK3ytS6V41Xk52FW7IIpc1RfLuzewsW4PS5pRWe
+aNWjWPgMZQ6wRCLt9OnYYVlsCtfnM0kekmzqIJpRKg5RSz1VcGvKqevHc/Qcf7RuMRm5xVq9/hgq
+6a9VL224PMLBosMLk7qGTmeeatt6ECR/y9CEYGFWMM+C9bxS2QiVG/HQTUdBK4WqxBWDJSbTh/Fj
+whhbt/39NVuMBcJUZg3eQb3yO3yPE9dDHq613q07G8rJysV9z/M2fKxaVe0lwc/Mh9Sqvxevqo7X
+ml7XD3H/sNI8Ho+3OjuKA3/LWBqSLdUHlS3VIxXtRnqtVjvaNLhEQC1HwH69Xl9DC/mdWdjhyQ5/
+t8BTzyFMNERkgxXh0pQV4yoQSeQX2JFZkjDhuTIfsUZ5LYkb6TZhldHlMrRmKjYFGwsmp8BumFhA
+HXc5mGy+pJMzb8pwicGFNz95nyJxIVjIKfNxYZ5HQexST3OtOLU5PGS4lyoWS0Rv3iGxjFBST8vk
+viUYNSqmtAnuHiOEKpWMQKHLmZuNcjpzNmjmybrg8xvwAldKnBJXeWus+tRIlvUbSWIc9/rQ6Tn2
+oGc7cGLToYp9stcoJ5niMmpOHwubahC+xvE5rr6SZdEYizgEhV2kAOlPuhWiNZYuX4DuaaiGumg1
+RuLYmbqYJ4t4puXwUwBiCneAyo0octbKi9yqBrdxbGZXJENonZx1erlgKu3CFIeuaZSNvM8KGw3s
+04E9fKUXtUbZpUCmEWyU0yUKV7PsVmFw0YOT/mWv22+dLFfoTg9etNo/vBz0L3onUBzGQPtiuvtK
+Rx0TH5dmfVxa1H7sw6XLle6ccOfAl0esxdEiQa+wwUlvCEhocStd0i1SkreH1AwXetODKpiX+PbM
+0j/v8QoigCADhvyyTs8RWwUhM16t5KhdDkbmNY6EXEQecCUxSjGOH40a1id0bIckcYHESqtKLVQr
+68rz8+IxzQN7cJIBfpUPdPuCAEMqhnwTS+iyidTH6ZKq4ZB2GrcOYJpRbGoYmR4TuLBpNooMq5+x
+Rn24bSFrsyZvwaCLOXlYLmNcrQlX09mIlvNsKbS8OCzLa1WtvSm7OCHwMJZlguCmFkNbpxtP8/bt
+eJcZs71GeUg457XrYoUsJPqardVzOuaLAUKnf+Fk13cIOqc/sNO7tFS2HSeLNNhMhG5E4aZZdZbo
+D4JKOhZEyZAkXMOI0U4JlyCkrQQOqhxnV5B7WumKpQmEYXq/eJUq3apf2//pGi+hLcX7zcq/35At
+v7cVyDqz4tL54G/djmrBndeeJc2NbxEglcIaac3Jb53I75B56b3zOUaLL/eJiK/O9m1ndg15u9vY
+Zm3Oh++L3Df5Z4L//POv7/0LgX0Cw4t2G3eQpxfd7k97ubCzStE5bkZwRZsjgaGphRLUpcPaJTRM
+gsbX/hNCqrvwP/fZern3IQAA"
 
-echo "[2/5] Configuring uHTTPd Web Server for RAM-Disk..."
-uci set uhttpd.main.home='/tmp/html'
-uci set uhttpd.main.index_page='index.php'
-uci set uhttpd.main.error_page='/index.php'
-uci add_list uhttpd.main.interpreter='.php=/usr/bin/php-cgi'
-uci commit uhttpd
-
-echo "[3/5] Writing Firewall Engine (vaultos_core.sh)..."
-cat << 'EOF_VAULT' > /etc/vaultos_core.sh
-#!/bin/sh
-# ANONIMO'S VAULT OS - OPENWRT NFTABLES CORE
-
-echo "Vault OS initializing..."
-
-# 🔥 FIX 1: GRANT WEB SERVER PERMISSION TO CONTROL FIREWALL 🔥
-chmod +s /usr/sbin/nft 2>/dev/null
-chmod +s /usr/sbin/conntrack 2>/dev/null
-
-# 1. Flush old nftables rules
-nft delete table inet pisowifi 2>/dev/null
-
-# 2. Create the Piso WiFi Table and MAC Sets
-nft add table inet pisowifi
-nft add set inet pisowifi authenticated_macs { type ether_addr\; }
-nft add set inet pisowifi wisp_macs { type ether_addr\; }
-
-# 3. Captive Portal Redirection (NAT)
-nft add chain inet pisowifi captive_portal { type nat hook prerouting priority dstnat - 1\; policy accept\; }
-
-nft add rule inet pisowifi captive_portal ether saddr @authenticated_macs return
-nft add rule inet pisowifi captive_portal ether saddr @wisp_macs return
-nft add rule inet pisowifi captive_portal ip daddr 10.0.0.1 return
-nft add rule inet pisowifi captive_portal iifname "br-guest" tcp dport 80 redirect to :80
-nft add rule inet pisowifi captive_portal iifname "br-guest" udp dport 53 redirect to :53
-nft add rule inet pisowifi captive_portal iifname "br-guest" tcp dport 53 redirect to :53
-
-# 4. Internet Blocking (Forwarding)
-nft add chain inet pisowifi filter_forward { type filter hook forward priority filter - 1\; policy accept\; }
-
-# 🛑 THE MODEM PROTECTOR 🛑
-nft add rule inet pisowifi filter_forward iifname "br-guest" ip daddr 192.168.1.1 drop
-nft add rule inet pisowifi filter_forward iifname "br-guest" ip daddr 192.168.254.254 drop
-
-nft add rule inet pisowifi filter_forward ether saddr @authenticated_macs accept
-nft add rule inet pisowifi filter_forward ether saddr @wisp_macs accept
-nft add rule inet pisowifi filter_forward iifname "br-guest" tcp dport 443 reject with tcp reset
-nft add rule inet pisowifi filter_forward iifname "br-guest" drop
-
-# 🛑 THE ROUTER PROTECTOR (INPUT CHAIN) 🛑
-nft add chain inet pisowifi filter_input { type filter hook input priority filter - 1\; policy accept\; }
-nft add rule inet pisowifi filter_input iifname "br-guest" tcp dport 22 drop
-nft add rule inet pisowifi filter_input iifname "br-guest" tcp dport 443 drop
-
-# 5. Network Anti-Tethering (TTL)
-echo "Applying TTL Anti-Tethering limits..."
-cat << 'PHPTTL' > /tmp/parse_ttl.php
-<?php
-$file = "/tmp/html/db/bandwidth.json";
-$ttl = 64;
-if(file_exists($file)){
-    $bw = json_decode(file_get_contents($file), true);
-    if(isset($bw["ttl"])) $ttl = (int)$bw["ttl"];
-}
-echo $ttl;
-?>
-PHPTTL
-TTL_VAL=$(php-cgi -q /tmp/parse_ttl.php)
-rm /tmp/parse_ttl.php 2>/dev/null
-[ -z "$TTL_VAL" ] && TTL_VAL=64
-
-nft add chain inet pisowifi mangle_postrouting { type filter hook postrouting priority mangle \; policy accept \; }
-nft add rule inet pisowifi mangle_postrouting oifname "br-guest" ip ttl set $TTL_VAL
-
-# 6. Restore WISP Subscribers
-echo "Restoring WISP Subscribers..."
-cat << 'PHPWISP' > /tmp/parse_wisp.php
-<?php
-$file = "/tmp/html/db/subscriptions.json";
-if(file_exists($file)){
-    $subs = json_decode(file_get_contents($file), true);
-    if($subs){
-        foreach($subs as $id => $s){
-            if(isset($s["status"]) && $s["status"] === "active") {
-                foreach($s["macs"] as $mac) {
-                    if (!empty($mac)) echo strtolower(trim($mac))."\n";
-                }
-            }
-        }
-    }
-}
-?>
-PHPWISP
-php-cgi -q /tmp/parse_wisp.php | grep -iE "^([0-9a-f]{2}:){5}[0-9a-f]{2}$" > /tmp/active_subs.txt
-
-while read -r MAC; do
-    if [ -n "$MAC" ]; then
-        nft add element inet pisowifi wisp_macs { $MAC } 2>/dev/null
-    fi
-done < /tmp/active_subs.txt
-
-# 7. Restore Active Piso WiFi Sessions
-echo "Restoring Active Piso WiFi Sessions..."
-cat << 'PHPSESS' > /tmp/parse_sess.php
-<?php
-$file = "/tmp/html/db/sessions.json";
-if(file_exists($file)){
-    $sessions = json_decode(file_get_contents($file), true);
-    if($sessions){
-        foreach($sessions as $mac => $s){
-            if(isset($s["status"]) && $s["status"] === "active") {
-                echo strtolower(trim($mac))."\n";
-            }
-        }
-    }
-}
-?>
-PHPSESS
-php-cgi -q /tmp/parse_sess.php | grep -iE "^([0-9a-f]{2}:){5}[0-9a-f]{2}$" > /tmp/active_sessions.txt
-
-while read -r S_MAC; do
-    if [ -n "$S_MAC" ]; then
-        nft add element inet pisowifi authenticated_macs { $S_MAC } 2>/dev/null
-    fi
-done < /tmp/active_sessions.txt
-
-rm /tmp/parse_wisp.php /tmp/parse_sess.php /tmp/active_subs.txt /tmp/active_sessions.txt 2>/dev/null
-
-# 8. Clear Conntrack
-conntrack -F 2>/dev/null || true
-
-# 9. Start the Master Daemon
-killall php-cgi 2>/dev/null
-/usr/bin/php-cgi -q /tmp/html/daemon.php > /dev/null 2>&1 &
-
-echo "VAULT OS: NFTABLES ENGINE ARMED."
-EOF_VAULT
-
-echo "[4/5] Injecting Boot Sequence (rc.local)..."
-cat << 'EOF_RCLOCAL' > /etc/rc.local
-# 1. IMMEDIATELY CREATE RAM DISK & OFFLINE PAGE
-mkdir -p /tmp/html
-cat << 'EOF' > /tmp/html/index.php
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>System Offline</title>
-    <style>
-        body { background-color: #050a15; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; padding: 20px; text-align: center; }
-        .warning-box { background-color: yellow; padding: 20px 30px; border: 4px solid red; border-radius: 10px; margin-bottom: 25px; box-shadow: 0 0 20px rgba(255, 0, 0, 0.5); }
-        .blinking-text { color: red; font-size: 2rem; font-weight: 900; margin: 0; animation: blink 1s step-end infinite; }
-        @keyframes blink { 50% { opacity: 0; } }
-        .msg { color: #ccc; font-size: 1.1rem; line-height: 1.5; margin-bottom: 15px; }
-        .admin { color: #fff; font-weight: bold; font-size: 1.2rem; margin-bottom: 40px; }
-        .btn { background-color: #222; color: #fff; border: 2px solid #555; padding: 15px 40px; font-size: 1.2rem; font-weight: bold; border-radius: 5px; text-decoration: none; text-transform: uppercase; }
-    </style>
-    <script>
-        // Auto-refresh every 5 seconds to check if Vault OS has finished downloading
-        setTimeout(() => { window.location.reload(true); }, 5000);
-    </script>
-</head>
-<body>
-    <div class="warning-box">
-        <p class="blinking-text">NO INTERNET DETECTED!</p>
-    </div>
-    
-    <p class="msg">Please check from time to time for the main page to load.<br>Thank you for your understanding.</p>
-    <p class="admin">-ANONIMOS ADMIN</p>
-    
-    <a href="/" class="btn">REFRESH PAGE</a>
-</body>
-</html>
-EOF
-
-# 2. RUN DOWNLOAD ENGINE IN BACKGROUND (So router finishes booting)
-(
-    # Wait for raw internet (bypasses DNS issues)
-    while ! ping -c 1 -W 1 8.8.8.8 > /dev/null 2>&1; do sleep 5; done
-    
-    # Wait 10 seconds for the router to sync its clock to the present year
-    sleep 10
-    
-    # Internet found! Download Vault OS and extract it OVER the offline page
-    wget --no-check-certificate -qO /tmp/portal.tar.gz "https://raw.githubusercontent.com/skt12j/anonimos/main/portal.tar.gz"
-    tar -xzf /tmp/portal.tar.gz -C /tmp/html
-    rm /tmp/portal.tar.gz
-
-    # 🔥 ANTI-BROWNOUT VAULT RESTORE 🔥
-    # Copy the permanent backup back into the RAM disk before starting the firewall!
-    mkdir -p /root/vault_backup
-    mkdir -p /tmp/html/db
-    cp -r /root/vault_backup/* /tmp/html/db/ 2>/dev/null
-    
-    # Start the Vault OS Firewall Engine
-    /etc/vaultos_core.sh
-) &
+echo "$PAYLOAD" | base64 -d | gunzip | sh
 
 exit 0
-EOF_RCLOCAL
-
-echo "[5/5] Securing Permissions and Initializing..."
-chmod +x /etc/vaultos_core.sh
-chmod +x /etc/rc.local
-mkdir -p /root/vault_backup
-
-echo "====================================================="
-echo " ✅ VAULT OS INSTALLED SUCCESSFULLY!"
-echo " The router will now reboot to apply the RAM-disk."
-echo "====================================================="
-reboot
