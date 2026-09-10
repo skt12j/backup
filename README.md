@@ -1,7 +1,7 @@
- =======================================================================
-#                   VAULT OS - PISO WIFI ECOSYSTEM
-#                   COMMERCIAL INSTALLATION GUIDE
- =======================================================================
+=======================================================================
+                   VAULT OS - PISO WIFI ECOSYSTEM
+                   COMMERCIAL INSTALLATION GUIDE
+=======================================================================
 
 SYSTEM REQUIREMENTS:
 - Compatible OS: OpenWrt 22.03.x up to 25.12.5 (nftables supported)
