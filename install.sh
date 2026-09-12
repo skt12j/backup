@@ -7,10 +7,6 @@ echo "====================================================="
 echo "  INITIALIZING VAULT OS INSTALLATION..."
 echo "====================================================="
 
-echo "[1/8] Updating OpenWrt packages and installing PHP..."
-opkg update
-opkg install php8 php8-cgi php8-mod-session curl wget-ssl tar conntrack
-
 echo "[2/8] Unlocking PHP Engine for RAM-Disk Execution..."
 # Aggressively remove path restrictions from PHP
 sed -i 's/.*docroot.*/docroot = ""/g' /etc/php.ini
