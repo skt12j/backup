@@ -1,18 +1,33 @@
 #!/bin/sh
 # ===================================================================
-# ANONIMO'S VAULT OS - ONE-CLICK INSTALLER (THE AX23 CLONE)
+# ANONIMO'S VAULT OS - ONE-CLICK INSTALLER (THE ULTIMATE EDITION)
 # ===================================================================
 
 echo "====================================================="
 echo "  INITIALIZING VAULT OS INSTALLATION..."
 echo "====================================================="
 
+# === SMART STORAGE DETECTION ===
+FLASH_SIZE=$(df -m / | awk 'NR==2 {print $2}')
+if [ -z "$FLASH_SIZE" ]; then FLASH_SIZE=0; fi
+
+PORTAL_DIR="/www/vaultos"
+
+if [ "$FLASH_SIZE" -gt 100 ]; then
+    echo "💾 Large storage detected (${FLASH_SIZE}MB)! Setting up PERMANENT FLASH installation..."
+    IS_FLASH=1
+else
+    echo "⚡ Small storage detected (${FLASH_SIZE}MB)! Setting up RAM-MOUNT installation..."
+    IS_FLASH=0
+fi
+
 echo "[1/8] Updating OpenWrt packages and installing PHP..."
 opkg update
-opkg install php8 php8-cgi php8-mod-session curl wget-ssl tar conntrack
+# Added php8-mod-curl for the ESP32 Coinslot API, and php8-cli for the background daemon!
+opkg install php8 php8-cgi php8-cli php8-mod-session php8-mod-curl curl wget-ssl tar conntrack
 
-echo "[2/8] Unlocking PHP Engine for RAM-Disk Execution..."
-# Correctly comment out doc_root and open_basedir to allow /tmp/html execution
+echo "[2/8] Unlocking PHP Engine for Execution..."
+# Comment out path jails so PHP can execute freely
 sed -i 's/^doc_root.*/;doc_root =/g' /etc/php.ini
 sed -i 's/^open_basedir.*/;open_basedir =/g' /etc/php.ini
 
@@ -53,7 +68,7 @@ uci set network.guest.ipaddr='10.0.0.1'
 uci set network.guest.netmask='255.255.255.0'
 uci commit network
 
-echo "[4/8] Configuring DHCP Pool & Firewall Zones..."
+echo "[4/8] Configuring DHCP Pool, Firewall Zones, and Internet Forwarding..."
 uci set dhcp.guest=dhcp
 uci set dhcp.guest.interface='guest'
 uci set dhcp.guest.start='100'
@@ -67,10 +82,15 @@ uci set firewall.@zone[-1].network='guest'
 uci set firewall.@zone[-1].input='ACCEPT'
 uci set firewall.@zone[-1].output='ACCEPT'
 uci set firewall.@zone[-1].forward='REJECT'
+
+# CRITICAL FIX: Allow authenticated guests to access the internet!
+uci add firewall forwarding
+uci set firewall.@forwarding[-1].src='guest'
+uci set firewall.@forwarding[-1].dest='wan'
 uci commit firewall
 
-echo "[5/8] Configuring uHTTPd Dual-Server (1:1 Clone)..."
-# 1. Main LAN Server (Hosts LuCI + Vault OS Admin Dashboard)
+echo "[5/8] Configuring uHTTPd Dual-Server..."
+# 1. Main LAN Server (Hosts LuCI + Admin Dashboard)
 uci set uhttpd.main.home='/www'
 uci set uhttpd.main.user='root'
 uci set uhttpd.main.group='root'
@@ -85,10 +105,10 @@ uci add_list uhttpd.main.interpreter='.php=/usr/bin/php-cgi'
 uci set uhttpd.portal=uhttpd
 uci del uhttpd.portal.listen_http 2>/dev/null
 uci add_list uhttpd.portal.listen_http='10.0.0.1:80'
-uci set uhttpd.portal.home='/tmp/html'
+uci set uhttpd.portal.home="$PORTAL_DIR"
 uci set uhttpd.portal.index_page='index.php index.html'
 uci del uhttpd.portal.error_page 2>/dev/null
-uci set uhttpd.portal.error_page='/index.php'
+uci set uhttpd.portal.error_page='/404.php'
 uci add_list uhttpd.portal.interpreter='.php=/usr/bin/php-cgi'
 uci commit uhttpd
 
@@ -129,8 +149,6 @@ cat << 'EOF_VAULT' > /etc/vaultos_core.sh
 #!/bin/sh
 # ANONIMO'S VAULT OS - OPENWRT NFTABLES CORE
 
-echo "Vault OS initializing..."
-
 chmod +s /usr/sbin/nft 2>/dev/null
 chmod +s /usr/sbin/conntrack 2>/dev/null
 
@@ -143,7 +161,8 @@ nft add chain inet pisowifi captive_portal { type nat hook prerouting priority d
 nft add rule inet pisowifi captive_portal ether saddr @authenticated_macs return
 nft add rule inet pisowifi captive_portal ether saddr @wisp_macs return
 nft add rule inet pisowifi captive_portal ip daddr 10.0.0.1 return
-nft add rule inet pisowifi captive_portal iifname "br-guest" tcp dport 80 dnat to 10.0.0.1:80
+# CRITICAL FIX: Specified 'dnat ip' to prevent nftables ambiguity
+nft add rule inet pisowifi captive_portal iifname "br-guest" tcp dport 80 dnat ip to 10.0.0.1:80
 nft add rule inet pisowifi captive_portal iifname "br-guest" udp dport 53 redirect to :53
 nft add rule inet pisowifi captive_portal iifname "br-guest" tcp dport 53 redirect to :53
 
@@ -159,10 +178,9 @@ nft add rule inet pisowifi filter_input iifname "br-guest" ip daddr 192.168.0.0/
 nft add rule inet pisowifi filter_input iifname "br-guest" tcp dport 22 drop
 nft add rule inet pisowifi filter_input iifname "br-guest" tcp dport 443 drop
 
-echo "Applying TTL Anti-Tethering limits..."
 cat << 'PHPTTL' > /tmp/parse_ttl.php
 <?php
-$file = "/tmp/html/db/bandwidth.json";
+$file = "VAULT_DIR_PLACEHOLDER/db/bandwidth.json";
 $ttl = 64;
 if(file_exists($file)){
     $bw = json_decode(file_get_contents($file), true);
@@ -178,20 +196,42 @@ rm /tmp/parse_ttl.php 2>/dev/null
 nft add chain inet pisowifi mangle_postrouting { type filter hook postrouting priority mangle \; policy accept \; }
 nft add rule inet pisowifi mangle_postrouting oifname "br-guest" ip ttl set $TTL_VAL
 
-echo "Restoring Active Sessions & WISP..."
 conntrack -F 2>/dev/null || true
 
-killall php-cgi 2>/dev/null
-/usr/bin/php-cgi -q /tmp/html/daemon.php > /dev/null 2>&1 &
-
-echo "VAULT OS: NFTABLES ENGINE ARMED."
+# CRITICAL FIX: Use PHP-CLI for background daemon instead of PHP-CGI
+killall php 2>/dev/null
+killall php-cli 2>/dev/null
+/usr/bin/php-cli VAULT_DIR_PLACEHOLDER/daemon.php > /dev/null 2>&1 &
 EOF_VAULT
+sed -i "s|VAULT_DIR_PLACEHOLDER|$PORTAL_DIR|g" /etc/vaultos_core.sh
+chmod +x /etc/vaultos_core.sh
 
-echo "[8/8] Injecting Boot Sequence (rc.local)..."
+echo "[8/8] Injecting Boot Sequence and Finalizing Payload..."
+
+# Prepare the unified rc.local boot sequence
 cat << 'EOF_RCLOCAL' > /etc/rc.local
-# 1. IMMEDIATELY CREATE RAM DISK & OFFLINE PAGE
-mkdir -p /tmp/html
-cat << 'EOF' > /tmp/html/index.php
+# === VAULT OS BOOT SEQUENCE ===
+EOF_RCLOCAL
+
+if [ "$IS_FLASH" -eq 0 ]; then
+    echo "mkdir -p /www/vaultos" >> /etc/rc.local
+    echo "mount -t tmpfs -o size=40M tmpfs /www/vaultos" >> /etc/rc.local
+else
+    mkdir -p /www/vaultos
+fi
+
+# Inject the dynamic files creation into rc.local
+cat << 'EOF_FILES' >> /etc/rc.local
+# 1. CREATE CAPTIVE PORTAL POPUP TRIGGER (302 REDIRECT)
+cat << 'EOF' > /www/vaultos/404.php
+<?php
+header("Location: http://10.0.0.1/");
+exit;
+?>
+EOF
+
+# 2. CREATE OFFLINE PAGE
+cat << 'EOF' > /www/vaultos/index.php
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -207,9 +247,7 @@ cat << 'EOF' > /tmp/html/index.php
         .admin { color: #fff; font-weight: bold; font-size: 1.2rem; margin-bottom: 40px; }
         .btn { background-color: #222; color: #fff; border: 2px solid #555; padding: 15px 40px; font-size: 1.2rem; font-weight: bold; border-radius: 5px; text-decoration: none; text-transform: uppercase; }
     </style>
-    <script>
-        setTimeout(() => { window.location.reload(true); }, 5000);
-    </script>
+    <script>setTimeout(() => { window.location.reload(true); }, 5000);</script>
 </head>
 <body>
     <div class="warning-box"><p class="blinking-text">NO INTERNET DETECTED!</p></div>
@@ -220,36 +258,39 @@ cat << 'EOF' > /tmp/html/index.php
 </html>
 EOF
 
-# 2. RUN DOWNLOAD ENGINE IN BACKGROUND
+# 3. BACKGROUND DOWNLOADER & ACTIVATOR
 (
     while ! ping -c 1 -W 1 8.8.8.8 > /dev/null 2>&1; do sleep 5; done
     sleep 10
     wget --no-check-certificate -qO /tmp/portal.tar.gz "https://raw.githubusercontent.com/skt12j/anonimos/main/portal.tar.gz"
-    tar -xzf /tmp/portal.tar.gz -C /tmp/html
+    
+    tar -xzf /tmp/portal.tar.gz -C /www/vaultos
     rm /tmp/portal.tar.gz
 
-    mkdir -p /root/vault_backup
-    mkdir -p /tmp/html/db
-    cp -r /root/vault_backup/* /tmp/html/db/ 2>/dev/null
-    
-    # Establish the Admin Symlink natively
-    ln -sf /tmp/html/admin /www/admin
+    # CRITICAL FIX: Ensure full permissions so slot_api.php doesn't crash
+    chmod -R 777 /www/vaultos
 
+    # Restore the permanent Vault database backup
+    mkdir -p /root/vault_backup
+    mkdir -p /www/vaultos/db
+    cp -r /root/vault_backup/* /www/vaultos/db/ 2>/dev/null
+    
+    # Symlink the Admin Dashboard to the Main LAN
+    ln -sf /www/vaultos/admin /www/admin
+
+    # Fire the main nftables engine
     /etc/vaultos_core.sh
 ) &
-
 exit 0
-EOF_RCLOCAL
+EOF_FILES
 
-chmod +x /etc/vaultos_core.sh
 chmod +x /etc/rc.local
 mkdir -p /root/vault_backup
-ln -sf /tmp/html/admin /www/admin
 
 printf "111625\n111625\n" | passwd root
 
 echo "====================================================="
-echo " ✅ VAULT OS INSTALLED SUCCESSFULLY!"
-echo " The router will now reboot to apply the RAM-disk."
+echo " ✅ VAULT OS INSTALLED SUCCESSFULLY IN MODE: $PORTAL_DIR"
+echo " The router will now reboot to apply all settings."
 echo "====================================================="
 reboot
