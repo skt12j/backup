@@ -4,7 +4,7 @@
 # ===================================================================
 
 echo "====================================================="
-echo "  INITIALIZING VAULT OS INSTALLATION..."
+echo "  INITIALIZING VAULT OS INSTALLATION...PAK"
 echo "====================================================="
 
 # === SMART STORAGE DETECTION ===
