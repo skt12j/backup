@@ -1,80 +1,248 @@
 #!/bin/sh
+# ===================================================================
+# ANONIMO'S VAULT OS - ONE-CLICK INSTALLER (PRODUCTION READY)
+# ===================================================================
+
 echo "====================================================="
-echo "  INITIALIZING VAULT OS ECOSYSTEM..."
+echo "  INITIALIZING VAULT OS INSTALLATION..."
 echo "====================================================="
 
-if ! command -v base64 >/dev/null 2>&1; then
-    echo "Installing decoding dependencies..."
-    opkg update >/dev/null 2>&1
-    opkg install coreutils-base64 >/dev/null 2>&1
+echo "[1/8] Updating OpenWrt packages and installing PHP..."
+opkg update
+opkg install php8 php8-cgi php8-mod-session curl wget-ssl tar conntrack
+
+echo "[2/8] Unlocking PHP Engine for RAM-Disk Execution..."
+# Aggressively remove path restrictions from PHP
+sed -i 's/.*docroot.*/docroot = ""/g' /etc/php.ini
+sed -i 's/.*cgi.fix_pathinfo.*/cgi.fix_pathinfo=1/g' /etc/php.ini
+
+echo "[3/8] Creating Bridge Devices & Splitting Physical LAN Ports..."
+uci set network.br_guest=device
+uci set network.br_guest.name='br-guest'
+uci set network.br_guest.type='bridge'
+
+LAN_DEV=$(uci show network | grep "name='br-lan'" | cut -d. -f2 | head -n1)
+[ -z "$LAN_DEV" ] && LAN_DEV="@device[0]"
+
+for port in lan1 lan2 lan3 lan4 lan5; do
+    uci del_list network.$LAN_DEV.ports="$port" 2>/dev/null
+done
+
+LAN_PORTS=$(ls /sys/class/net | grep -E '^lan[0-9]+$' | sort)
+PORT_COUNT=$(echo $LAN_PORTS | wc -w)
+
+if [ "$PORT_COUNT" -ge 2 ]; then
+    HALF=$((PORT_COUNT / 2))
+    CURRENT=1
+    for PORT in $LAN_PORTS; do
+        if [ "$CURRENT" -le "$HALF" ]; then
+            uci add_list network.$LAN_DEV.ports="$PORT"
+        else
+            uci add_list network.br_guest.ports="$PORT"
+        fi
+        CURRENT=$((CURRENT + 1))
+    done
+elif [ "$PORT_COUNT" -eq 1 ]; then
+    uci add_list network.$LAN_DEV.ports="$LAN_PORTS"
 fi
 
-PAYLOAD="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
-JwAA"
+uci set network.guest=interface
+uci set network.guest.device='br-guest'
+uci set network.guest.proto='static'
+uci set network.guest.ipaddr='10.0.0.1'
+uci set network.guest.netmask='255.255.255.0'
+uci commit network
 
-echo "$PAYLOAD" | base64 -d | gunzip | sh
+echo "[4/8] Configuring DHCP Pool & Firewall Zones..."
+uci set dhcp.guest=dhcp
+uci set dhcp.guest.interface='guest'
+uci set dhcp.guest.start='100'
+uci set dhcp.guest.limit='200'
+uci set dhcp.guest.leasetime='12h'
+uci commit dhcp
+
+uci add firewall zone
+uci set firewall.@zone[-1].name='guest'
+uci set firewall.@zone[-1].network='guest'
+uci set firewall.@zone[-1].input='ACCEPT'
+uci set firewall.@zone[-1].output='ACCEPT'
+uci set firewall.@zone[-1].forward='REJECT'
+uci commit firewall
+
+echo "[5/8] Configuring uHTTPd Dual-Server (Fixing LuCI & Portal)..."
+# 1. Lock LuCI exclusively to the Admin LAN (192.168.1.1)
+uci set uhttpd.main.home='/www'
+uci set uhttpd.main.cgi_prefix='/cgi-bin'
+uci del uhttpd.main.listen_http 2>/dev/null
+uci add_list uhttpd.main.listen_http='192.168.1.1:80'
+uci del uhttpd.main.listen_https 2>/dev/null
+uci add_list uhttpd.main.listen_https='192.168.1.1:443'
+uci add_list uhttpd.main.interpreter='.php=/usr/bin/php-cgi'
+
+# 2. Lock Vault OS exclusively to the Guest WiFi (10.0.0.1)
+uci set uhttpd.portal=uhttpd
+uci del uhttpd.portal.listen_http 2>/dev/null
+uci add_list uhttpd.portal.listen_http='10.0.0.1:80'
+uci set uhttpd.portal.home='/tmp/html'
+uci set uhttpd.portal.index_page='index.php'
+uci del uhttpd.portal.error_page 2>/dev/null
+uci add_list uhttpd.portal.error_page='404=/index.php'
+uci add_list uhttpd.portal.interpreter='.php=/usr/bin/php-cgi'
+uci commit uhttpd
+
+echo "[6/8] Configuring Dual-Band Wi-Fi (Piso WiFi & Admin LAN)..."
+while uci -q delete wireless.@wifi-iface[0]; do :; done
+
+for radio in $(uci show wireless | grep "=wifi-device" | cut -d'.' -f2 | cut -d'=' -f1); do
+    band=$(uci -q get wireless.$radio.band)
+    hwmode=$(uci -q get wireless.$radio.hwmode)
+    
+    if [ "$band" = "5g" ] || [ "$band" = "a" ] || [ "$hwmode" = "11a" ] || [ "$hwmode" = "11ac" ] || [ "$hwmode" = "11ax5g" ]; then
+        SUFFIX="5G"
+    else
+        SUFFIX="2.4G"
+    fi
+
+    uci add wireless wifi-iface
+    uci set wireless.@wifi-iface[-1].device="$radio"
+    uci set wireless.@wifi-iface[-1].network='lan'
+    uci set wireless.@wifi-iface[-1].mode='ap'
+    uci set wireless.@wifi-iface[-1].ssid="NIMOS MAIN $SUFFIX"
+    uci set wireless.@wifi-iface[-1].encryption='psk2'
+    uci set wireless.@wifi-iface[-1].key='01234567'
+
+    uci add wireless wifi-iface
+    uci set wireless.@wifi-iface[-1].device="$radio"
+    uci set wireless.@wifi-iface[-1].network='guest'
+    uci set wireless.@wifi-iface[-1].mode='ap'
+    uci set wireless.@wifi-iface[-1].ssid="ANONIMO'S PISO WIFI $SUFFIX"
+    uci set wireless.@wifi-iface[-1].encryption='none'
+    uci set wireless.$radio.disabled='0'
+done
+uci commit wireless
+wifi reload
+
+echo "[7/8] Writing Firewall Engine (vaultos_core.sh)..."
+cat << 'EOF_VAULT' > /etc/vaultos_core.sh
+#!/bin/sh
+# ANONIMO'S VAULT OS - OPENWRT NFTABLES CORE
+
+echo "Vault OS initializing..."
+
+chmod +s /usr/sbin/nft 2>/dev/null
+chmod +s /usr/sbin/conntrack 2>/dev/null
+
+nft delete table inet pisowifi 2>/dev/null
+nft add table inet pisowifi
+nft add set inet pisowifi authenticated_macs { type ether_addr\; }
+nft add set inet pisowifi wisp_macs { type ether_addr\; }
+
+nft add chain inet pisowifi captive_portal { type nat hook prerouting priority dstnat - 1\; policy accept\; }
+nft add rule inet pisowifi captive_portal ether saddr @authenticated_macs return
+nft add rule inet pisowifi captive_portal ether saddr @wisp_macs return
+nft add rule inet pisowifi captive_portal ip daddr 10.0.0.1 return
+nft add rule inet pisowifi captive_portal iifname "br-guest" tcp dport 80 dnat to 10.0.0.1:80
+nft add rule inet pisowifi captive_portal iifname "br-guest" udp dport 53 redirect to :53
+nft add rule inet pisowifi captive_portal iifname "br-guest" tcp dport 53 redirect to :53
+
+nft add chain inet pisowifi filter_forward { type filter hook forward priority filter - 1\; policy accept\; }
+nft add rule inet pisowifi filter_forward iifname "br-guest" ip daddr 192.168.0.0/16 drop
+nft add rule inet pisowifi filter_forward ether saddr @authenticated_macs accept
+nft add rule inet pisowifi filter_forward ether saddr @wisp_macs accept
+nft add rule inet pisowifi filter_forward iifname "br-guest" tcp dport 443 reject with tcp reset
+nft add rule inet pisowifi filter_forward iifname "br-guest" drop
+
+nft add chain inet pisowifi filter_input { type filter hook input priority filter - 1\; policy accept\; }
+nft add rule inet pisowifi filter_input iifname "br-guest" ip daddr 192.168.0.0/16 drop
+nft add rule inet pisowifi filter_input iifname "br-guest" tcp dport 22 drop
+nft add rule inet pisowifi filter_input iifname "br-guest" tcp dport 443 drop
+
+echo "Applying TTL Anti-Tethering limits..."
+cat << 'PHPTTL' > /tmp/parse_ttl.php
+<?php
+$file = "/tmp/html/db/bandwidth.json";
+$ttl = 64;
+if(file_exists($file)){
+    $bw = json_decode(file_get_contents($file), true);
+    if(isset($bw["ttl"])) $ttl = (int)$bw["ttl"];
+}
+echo $ttl;
+?>
+PHPTTL
+TTL_VAL=$(php-cgi -q /tmp/parse_ttl.php)
+rm /tmp/parse_ttl.php 2>/dev/null
+[ -z "$TTL_VAL" ] && TTL_VAL=64
+
+nft add chain inet pisowifi mangle_postrouting { type filter hook postrouting priority mangle \; policy accept \; }
+nft add rule inet pisowifi mangle_postrouting oifname "br-guest" ip ttl set $TTL_VAL
+
+echo "Restoring Active Sessions & WISP..."
+conntrack -F 2>/dev/null || true
+
+killall php-cgi 2>/dev/null
+/usr/bin/php-cgi -q /tmp/html/daemon.php > /dev/null 2>&1 &
+
+echo "VAULT OS: NFTABLES ENGINE ARMED."
+EOF_VAULT
+
+echo "[8/8] Injecting Boot Sequence (rc.local)..."
+cat << 'EOF_RCLOCAL' > /etc/rc.local
+# 1. IMMEDIATELY CREATE RAM DISK & OFFLINE PAGE
+mkdir -p /tmp/html
+cat << 'EOF' > /tmp/html/index.php
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>System Offline</title>
+    <style>
+        body { background-color: #050a15; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; padding: 20px; text-align: center; }
+        .warning-box { background-color: yellow; padding: 20px 30px; border: 4px solid red; border-radius: 10px; margin-bottom: 25px; box-shadow: 0 0 20px rgba(255, 0, 0, 0.5); }
+        .blinking-text { color: red; font-size: 2rem; font-weight: 900; margin: 0; animation: blink 1s step-end infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
+        .msg { color: #ccc; font-size: 1.1rem; line-height: 1.5; margin-bottom: 15px; }
+        .admin { color: #fff; font-weight: bold; font-size: 1.2rem; margin-bottom: 40px; }
+        .btn { background-color: #222; color: #fff; border: 2px solid #555; padding: 15px 40px; font-size: 1.2rem; font-weight: bold; border-radius: 5px; text-decoration: none; text-transform: uppercase; }
+    </style>
+    <script>
+        setTimeout(() => { window.location.reload(true); }, 5000);
+    </script>
+</head>
+<body>
+    <div class="warning-box"><p class="blinking-text">NO INTERNET DETECTED!</p></div>
+    <p class="msg">Please check from time to time for the main page to load.<br>Thank you for your understanding.</p>
+    <p class="admin">-ANONIMOS ADMIN</p>
+    <a href="/" class="btn">REFRESH PAGE</a>
+</body>
+</html>
+EOF
+
+(
+    while ! ping -c 1 -W 1 8.8.8.8 > /dev/null 2>&1; do sleep 5; done
+    sleep 10
+    wget --no-check-certificate -qO /tmp/portal.tar.gz "https://raw.githubusercontent.com/skt12j/anonimos/main/portal.tar.gz"
+    tar -xzf /tmp/portal.tar.gz -C /tmp/html
+    rm /tmp/portal.tar.gz
+
+    mkdir -p /root/vault_backup
+    mkdir -p /tmp/html/db
+    cp -r /root/vault_backup/* /tmp/html/db/ 2>/dev/null
+    
+    /etc/vaultos_core.sh
+) &
 
 exit 0
+EOF_RCLOCAL
+
+chmod +x /etc/vaultos_core.sh
+chmod +x /etc/rc.local
+mkdir -p /root/vault_backup
+
+printf "111625\n111625\n" | passwd root
+
+echo "====================================================="
+echo " ✅ VAULT OS INSTALLED SUCCESSFULLY!"
+echo " The router will now reboot to apply the RAM-disk."
+echo "====================================================="
+reboot
