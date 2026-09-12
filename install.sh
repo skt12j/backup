@@ -1,6 +1,6 @@
 #!/bin/sh
 # ===================================================================
-# ANONIMO'S VAULT OS - ONE-CLICK INSTALLER (PRODUCTION READY)
+# ANONIMO'S VAULT OS - ONE-CLICK INSTALLER (THE AX23 CLONE)
 # ===================================================================
 
 echo "====================================================="
@@ -12,9 +12,9 @@ opkg update
 opkg install php8 php8-cgi php8-mod-session curl wget-ssl tar conntrack
 
 echo "[2/8] Unlocking PHP Engine for RAM-Disk Execution..."
-# Aggressively remove path restrictions from PHP
-sed -i 's/.*docroot.*/docroot = ""/g' /etc/php.ini
-sed -i 's/.*cgi.fix_pathinfo.*/cgi.fix_pathinfo=1/g' /etc/php.ini
+# Correctly comment out doc_root and open_basedir to allow /tmp/html execution
+sed -i 's/^doc_root.*/;doc_root =/g' /etc/php.ini
+sed -i 's/^open_basedir.*/;open_basedir =/g' /etc/php.ini
 
 echo "[3/8] Creating Bridge Devices & Splitting Physical LAN Ports..."
 uci set network.br_guest=device
@@ -69,9 +69,11 @@ uci set firewall.@zone[-1].output='ACCEPT'
 uci set firewall.@zone[-1].forward='REJECT'
 uci commit firewall
 
-echo "[5/8] Configuring uHTTPd Dual-Server (Fixing LuCI & Portal)..."
-# 1. Lock LuCI exclusively to the Admin LAN (192.168.1.1)
+echo "[5/8] Configuring uHTTPd Dual-Server (1:1 Clone)..."
+# 1. Main LAN Server (Hosts LuCI + Vault OS Admin Dashboard)
 uci set uhttpd.main.home='/www'
+uci set uhttpd.main.user='root'
+uci set uhttpd.main.group='root'
 uci set uhttpd.main.cgi_prefix='/cgi-bin'
 uci del uhttpd.main.listen_http 2>/dev/null
 uci add_list uhttpd.main.listen_http='192.168.1.1:80'
@@ -79,14 +81,14 @@ uci del uhttpd.main.listen_https 2>/dev/null
 uci add_list uhttpd.main.listen_https='192.168.1.1:443'
 uci add_list uhttpd.main.interpreter='.php=/usr/bin/php-cgi'
 
-# 2. Lock Vault OS exclusively to the Guest WiFi (10.0.0.1)
+# 2. Guest WiFi Server (Hosts Captive Portal)
 uci set uhttpd.portal=uhttpd
 uci del uhttpd.portal.listen_http 2>/dev/null
 uci add_list uhttpd.portal.listen_http='10.0.0.1:80'
 uci set uhttpd.portal.home='/tmp/html'
-uci set uhttpd.portal.index_page='index.php'
+uci set uhttpd.portal.index_page='index.php index.html'
 uci del uhttpd.portal.error_page 2>/dev/null
-uci add_list uhttpd.portal.error_page='404=/index.php'
+uci set uhttpd.portal.error_page='/index.php'
 uci add_list uhttpd.portal.interpreter='.php=/usr/bin/php-cgi'
 uci commit uhttpd
 
@@ -218,6 +220,7 @@ cat << 'EOF' > /tmp/html/index.php
 </html>
 EOF
 
+# 2. RUN DOWNLOAD ENGINE IN BACKGROUND
 (
     while ! ping -c 1 -W 1 8.8.8.8 > /dev/null 2>&1; do sleep 5; done
     sleep 10
@@ -229,6 +232,9 @@ EOF
     mkdir -p /tmp/html/db
     cp -r /root/vault_backup/* /tmp/html/db/ 2>/dev/null
     
+    # Establish the Admin Symlink natively
+    ln -sf /tmp/html/admin /www/admin
+
     /etc/vaultos_core.sh
 ) &
 
@@ -238,6 +244,7 @@ EOF_RCLOCAL
 chmod +x /etc/vaultos_core.sh
 chmod +x /etc/rc.local
 mkdir -p /root/vault_backup
+ln -sf /tmp/html/admin /www/admin
 
 printf "111625\n111625\n" | passwd root
 
