@@ -262,7 +262,7 @@ EOF
 (
     while ! ping -c 1 -W 1 8.8.8.8 > /dev/null 2>&1; do sleep 5; done
     sleep 10
-    wget --no-check-certificate -qO /tmp/portal.tar.gz "https://raw.githubusercontent.com/skt12j/anonimos/main/portal.tar.gz"
+    wget --no-check-certificate -qO /tmp/portal.tar.gz "https://raw.githubusercontent.com/skt12j/nimos/main/portal.tar.gz"
     
     tar -xzf /tmp/portal.tar.gz -C /www/vaultos
     rm /tmp/portal.tar.gz
