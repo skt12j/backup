@@ -27,8 +27,7 @@ and creates four dedicated interfaces:
  2. ONE-CLICK SSH INSTALLATION
 =======================================================================
 1. Connect to your OpenWrt router via SSH:
-   ssh root@192.168.1.1
-   (Default password will be updated to: 111625 upon installation)
+   ssh root@192.168.1.1 (enter your openwrt login password (root) or your default one
 
 2. Copy, paste, and execute the following deployment command:
 
@@ -38,8 +37,7 @@ and creates four dedicated interfaces:
    - Install PHP 8 packages and coreutils-base64.
    - Configure the uHTTPd web server to run directly out of the RAM-disk.
    - Auto-provision the dual-band SSIDs.
-   - Write the hardened nftables core engine (`vaultos_core.sh`).
-   - Secure the root account with password `111625`.
+   - Write the hardened nftables core engine.
    - Automatically reboot the router.
 
 =======================================================================
